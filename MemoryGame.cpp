@@ -15,11 +15,14 @@ int answer;
 int correctCount;
 int wrongCount;
 int numQuestions = 3;
+int questionNumber = 0;
 string rangeSet;
 int offset;
 int range;
+bool questionCorrect = false;
 bool rangeCorrect = false;
 bool answerCorrect = false;
+bool replayCorrect = false;
 double totalTime = 0.0;//This is used to hold the total amount of time that the user spent answering the questions during one playthrough.
 double bestTime = 0.0;//The best time that is held throughout the various playthroughs.
 int timesPlayed = 0;
@@ -47,12 +50,30 @@ void getAnswer(){
     }
 }
 
+void getReplay(){
+    cin >> replay;
+
+    try {
+        if (!((replay == 'y') || (replay == 'n'))) {
+            throw invalid_argument("Invalid input format");
+        }else{
+            replayCorrect = true;//Worked like a charm.
+        }
+    }  catch (const invalid_argument &e) {
+        cerr << "*ahem*, (y/n) please." << endl;
+        replayCorrect = false;
+        return;
+    }
+}
+
 void playSequence(){
     timesPlayed++;
 
-    correctCount = 0;//Resetting the counts.
+    questionNumber = 0;//Resetting the counts.
+    correctCount = 0;
     wrongCount = 0;
     totalTime=0;
+    replayCorrect = false;
     
     sleep_until(system_clock::now() + 1s);
     std::cout << "Ready..." << endl;
@@ -67,8 +88,8 @@ void playSequence(){
         val1 = offset + (rand() % range);
         val2 = offset + (rand() % range);//I want them to be different values, so they are not initialized using one line.
         answer = val1 * val2;
-
-        cout << val1 << " * " << val2 << endl;
+        questionNumber++;
+        cout << questionNumber<<".  "<< val1 << " * " << val2 << endl;
         //cout << "WHAT SAY YE?" << endl;
 
         auto start = chrono::high_resolution_clock::now();//YOUR TIME STARTS NOW.
@@ -116,18 +137,17 @@ void playSequence(){
 
     cout << "Total time taken: " << totalTime << endl;
 
-    if((totalTime < bestTime) || (timesPlayed==1)){
+    if((totalTime < bestTime) || (timesPlayed==1) && !((numQuestions/2) >= correctCount)){//If spammed wrong answers, no high score 
         cout << "NEW ";
         bestTime = totalTime;
     }
     cout << "BEST TIME: " << bestTime << " SECONDS." << endl << endl << endl;
 
     cout << "Would you like to play again? (y/n)" << endl;
-    cin >> replay;
     
-    while(!((replay == 'y') || (replay == 'n')) && answerCorrect){
-        cout << "*ahem*, (y/n) please." << endl;
-    }
+    while (!replayCorrect) {
+            getReplay();
+        }
 
     if(replay == 'y'){
         cout << endl << endl;
@@ -143,7 +163,7 @@ void getRange(){
         if (found == string::npos) {
             throw invalid_argument("Invalid input format");
         }else{
-            rangeCorrect = true;//Worked like a charm.
+            rangeCorrect = true;//Works like a charm.
         }
 
         offset = stoi(rangeSet, 0);
@@ -156,6 +176,24 @@ void getRange(){
     }
 }
 
+void getNumQuestions(){
+    cin >> numQuestions;
+
+    try {
+        if (cin.fail()) {
+                throw invalid_argument("Invalid input format");
+            }else{
+                questionCorrect = true;//Works like a charm.
+            }
+    } catch (const invalid_argument &e) {
+        cerr << "A real number, please." << endl;
+        questionCorrect = false;
+        
+        cin.clear();//Clear the error state and ignore the invalid input
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+}
 
 int main(){
     std::cout.flush();// "flushes the buffer".
@@ -166,12 +204,17 @@ int main(){
     sleep_until(system_clock::now() + 0.3s);
 
     cout << "How many questions would you like?" << endl;
-    cin >> numQuestions;
+    while(!questionCorrect){
+        getNumQuestions();
+    }
 
     //FEEL FREE TO REMOVE THE FOLLOWING LOOP - IT IS ONLY MEANT AS ENCOURAGEMENT:
     while(numQuestions < 3){ 
-        cout << "Oh, you can do more than that. How about you do a little be more: " << endl;
-        cin >> numQuestions;
+        questionCorrect = false;
+        cout << "Oh, you can do more than that. How about you do a little more: " << endl;
+        while(!questionCorrect){
+            getNumQuestions();
+        }
     }
     cout << endl;
     cout << "In what range would you like your numbers? \"x,x\""<<endl;
