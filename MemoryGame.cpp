@@ -90,7 +90,6 @@ void playSequence(){
         answer = val1 * val2;
         questionNumber++;
         cout << questionNumber<<".  "<< val1 << " * " << val2 << endl;
-        //cout << "WHAT SAY YE?" << endl;
 
         auto start = chrono::high_resolution_clock::now();//YOUR TIME STARTS NOW.
 
