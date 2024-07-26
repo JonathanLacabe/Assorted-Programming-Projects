@@ -140,8 +140,13 @@ void playSequence(){
         cout << "NEW ";
         bestTime = totalTime;
     }
-    cout << "BEST TIME: " << bestTime << " SECONDS." << endl << endl << endl;
-
+    cout << "BEST TIME: ";
+    if(bestTime==0){
+        cout << "That was so bad, we won't even count that." << endl << endl;;
+    }else{
+        cout << bestTime << " SECONDS." << endl << endl;
+    }
+    
     cout << "Would you like to play again? (y/n)" << endl;
     
     while (!replayCorrect) {
